@@ -1,8 +1,6 @@
 # Tareas
 
-El número es el orden. Cada tarea cabe en una sesión y se puede entregar a alguien que no leyó las demás. No se abre la siguiente etapa hasta que la anterior se puede ejecutar.
-
-Fuera de esta lista: la app `admin/`, GCP y el correo al cambiar el estado de una orden.
+El número es el orden. Las tareas 1 a 17 caben en una sesión. Las tareas 18, 19 y 20 van después de las seis etapas y se parten en sesiones más chicas antes de implementarlas. No se abre la siguiente hasta que la anterior se puede ejecutar.
 
 ## 1. Esqueleto con una prueba que pasa
 Goal: Un proyecto vacío instala y pasa una prueba en el frontend y otra en el backend.
@@ -71,3 +69,15 @@ Description: Reemplazar el almacén en memoria por PostgreSQL local, detrás de 
 ## 17. Archivos en disco
 Goal: Un reinicio conserva los STL, las imágenes de referencia y las constancias.
 Description: Guardar esos archivos en una carpeta configurada por variable de entorno y persistir en la base solo la referencia; el backend es el único que lee y escribe esa carpeta. Las pruebas no dependen de archivos que ya estuvieran en la máquina. La UI y el contrato se quedan igual.
+
+## 18. Panel de administración
+Goal: Una app separada lista las órdenes, cambia su estado y descarga los archivos.
+Description: Crear `admin/` con React, Vite, TypeScript, Tailwind y shadcn/ui. Desde ahí se ven las órdenes, se actualiza el estado con `PATCH /api/admin/orders/{order_id}`, se descarga el STL y se descifran nombre, dirección y RFC solo al despachar o facturar. El endpoint queda protegido y el sitio público no cambia.
+
+## 19. Correo al cambiar el estado
+Goal: El cliente recibe un correo cada vez que el admin actualiza su orden.
+Description: Al completar el PATCH de estado, el backend envía un correo transaccional con Resend o SMTP al correo guardado en la orden. El mensaje incluye el Order ID y el estado nuevo: En cola, Imprimiendo, Terminado o Enviado. Las pruebas no envían un correo real.
+
+## 20. Paso a GCP
+Goal: Archivos, base y llave de cifrado salen de la máquina sin cambiar el producto.
+Description: Cloud Storage reemplaza la carpeta de archivos, Cloud SQL reemplaza PostgreSQL local y Secret Manager o Cloud KMS reemplaza la llave de cifrado del entorno. Se hace cuando cotizar, pagar y rastrear ya funcionan en local. La interfaz de almacén y el contrato se quedan igual.

@@ -106,4 +106,4 @@ AGENTS.md
 openapi.yaml       el contrato, desde la etapa 3
 ```
 
-`admin/` no entra en estas seis etapas. GCP tampoco. La etapa 1 solo crea el esqueleto. El producto empieza en la etapa 2.
+`admin/`, el correo al cambiar el estado y GCP no entran en estas seis etapas. En el backlog son las tareas 18, 19 y 20, y se parten en sesiones más chicas antes de implementarlas. La etapa 1 solo crea el esqueleto. El producto empieza en la etapa 2.
