@@ -41,21 +41,24 @@ Cuando cotizar, pagar y rastrear ya funcionen en local, GCP reemplaza estas tres
     *   Dropzone para subir archivo `.STL`.
     *   Visor 3D interactivo para previsualización espacial de la pieza.
     *   Selector de calidad (Básica, Media, Premium) y acabado (Crudo, Pintado).
-    *   Cálculo dinámico: El archivo se envía al backend, se procesa, y el frontend muestra el precio estimado.
-*   **Cotizador Manual:** Formulario limpio para proyectos personalizados, permitiendo subir imágenes de referencia y describir el proyecto.
+    *   Cálculo dinámico: El archivo se envía al backend, se procesa, y el frontend muestra el Quote ID y el precio estimado. El precio sale del volumen, la calidad y el acabado. Las tarifas son números provisionales en un solo módulo de configuración.
+*   **Cotizador Manual:** Formulario para proyectos personalizados, con descripción e imágenes de referencia. Al enviarlo, la pantalla muestra el Quote ID. Este camino no cobra anticipo.
 *   **Checkout y Pagos:**
+    *   Se abre desde el cotizador automático, con su Quote ID.
     *   Resumen de la orden y opciones elegidas.
+    *   Correo, siempre. Nombre y dirección de envío cuando la entrega es nacional.
     *   Selector de entrega: Local (San Juan del Río) o Envío Nacional.
-    *   Casilla "¿Requieres factura?" que despliega un input para subir el PDF de la Constancia de Situación Fiscal.
-    *   Botón de pago con PayPal (Cobro automático del 50% de anticipo).
-*   **Rastreo de Pedido:** Input simple para ingresar el `Order ID` y visualizar una línea de tiempo (timeline) con el estado: En cola -> Imprimiendo -> Terminado -> Enviado.
+    *   Casilla "¿Requieres factura?" que despliega el RFC y un input para subir el PDF de la Constancia de Situación Fiscal.
+    *   Botón de pago con PayPal (cobro del 50% de anticipo) y, al confirmar, el Order ID.
+*   **Rastreo de Pedido:** Order ID y correo. Si coinciden, una línea de tiempo con el estado: En cola -> Imprimiendo -> Terminado -> Enviado. Sin otros datos personales.
 
 ## 5. Backend (Endpoints Principales)
-*   `POST /api/quote/calculate`: Recibe el archivo STL, calcula el volumen, lo guarda en el almacén local y devuelve el precio estimado.
-*   `POST /api/checkout`: Procesa el pago de PayPal, encripta datos PII, guarda el PDF de la constancia en el almacén local, confirma el STL y genera el `Order ID`.
-*   `GET /api/orders/{order_id}`: Devuelve el estado actual de la orden (sin exponer PII).
+*   `POST /api/quote/calculate`: Recibe el archivo STL, calcula el volumen, lo guarda en el almacén local y devuelve el Quote ID y el precio estimado.
+*   `POST /api/quotes/manual`: Recibe la descripción y las imágenes de referencia, y devuelve el Quote ID. No cobra.
+*   `POST /api/checkout`: Recibe el Quote ID del cotizador automático, verifica el anticipo del 50% con PayPal, encripta los datos personales, guarda el PDF de la constancia en el almacén local y genera el Order ID.
+*   `GET /api/orders/{order_id}`: Recibe también el correo. Si coinciden, devuelve el estado de la orden, sin otros datos personales.
 *   `GET /api/portfolio`: Sirve la lista de imágenes y categorías para poblar dinámicamente la vista de "Nuestro Trabajo".
-*   `PATCH /api/admin/orders/{order_id}`: Endpoint protegido para uso exclusivo del Panel de Administración para actualizar estados.
+*   `PATCH /api/admin/orders/{order_id}`: Endpoint del panel de administración para actualizar estados. Fuera de las seis etapas; llega con `admin/`.
 
 ## 6. Notificaciones
 *   Notificaciones transaccionales por correo electrónico enviadas desde el backend (Resend o SMTP) al cliente cada vez que el administrador actualice el estado de su orden.
