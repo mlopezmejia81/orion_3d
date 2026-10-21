@@ -3,19 +3,33 @@
 ## 1. Visión General del Proyecto
 Desarrollar una plataforma web profesional para ofrecer servicios de impresión 3D bajo demanda en San Juan del Río, Querétaro, con alcance de envíos a todo México. El sistema debe permitir cotizaciones automáticas basadas en el análisis de archivos STL y cotizaciones manuales para proyectos complejos. Se integrará un flujo de pagos para cobrar el 50% de anticipo y un sistema seguro de gestión de órdenes.
 
-## 2. Stack Tecnológico
-*   **Frontend (Público y Admin):** React, Vite, Tailwind CSS, shadcn/ui.
-*   **Visor 3D Frontend:** `react-three-fiber` o `three.js`.
-*   **Backend:** Python con FastAPI.
-*   **Procesamiento 3D (Backend):** `trimesh` o `numpy-stl` (para calcular el volumen del STL de forma segura en el servidor).
-*   **Base de Datos:** PostgreSQL (alojado en GCP Cloud SQL).
-*   **Almacenamiento y Nube:** Google Cloud Platform (GCP Cloud Storage para archivos STL y Constancias Fiscales, Secret Manager o Cloud KMS para llaves de encriptación).
-*   **Pagos:** Integración con API de PayPal.
+## 2. Stack elegido
+
+Opción 1. La primera versión corre en la máquina. GCP entra cuando el camino cotizar, pagar y rastrear ya se puede recorrer de punta a punta.
+
+La primera versión local nombra tres cosas:
+
+*   **Frontend:** React, Vite, TypeScript, Tailwind CSS y shadcn/ui, en `frontend/`. El visor 3D usa `react-three-fiber`.
+*   **Backend:** Python con FastAPI, en `backend/`. Volumen, dimensiones y malla cerrada se calculan con `trimesh`.
+*   **Datos:** PostgreSQL en Docker. Los STL, las imágenes de referencia y los PDF de constancias viven en una carpeta del disco. La conexión a la base va en una variable de entorno. La llave de cifrado de datos personales también va en una variable de entorno.
+
+El panel de administración es una segunda app Vite, en `admin/`. Mismo frontend (React, Vite, TypeScript, Tailwind, shadcn/ui). Se construye cuando las seis etapas de abajo ya tienen un resultado que se puede ejecutar. Hasta entonces, el sitio público es la única UI.
+
+Pagos: PayPal, 50% de anticipo. En local se usa el sandbox de PayPal. Sin cuentas de cliente: un Quote ID pasa a Order ID, y el rastreo pide Order ID más correo.
+
+Correo transaccional: desde el backend (Resend o SMTP) cuando el estado de la orden cambia. No depende de GCP.
+
+Cuando cotizar, pagar y rastrear ya funcionen en local, GCP reemplaza estas tres piezas y nada más del producto:
+
+*   Cloud Storage, en lugar de la carpeta de archivos.
+*   Cloud SQL, si la base sale de la máquina.
+*   Secret Manager o Cloud KMS, en lugar de la llave de cifrado en el entorno.
 
 ## 3. Arquitectura y Seguridad
 *   **Gestión de Usuarios (Guest Mode):** No hay registro ni login para clientes. Se usa un `Quote ID` para la etapa de cotización que transiciona a un `Order ID` cuando se confirma el pago. Los clientes rastrean su pedido usando su `Order ID` y su correo electrónico.
-*   **Privacidad (PII):** Los datos sensibles (nombre, dirección de envío, RFC) se guardan encriptados a nivel de aplicación (FastAPI) en la base de datos PostgreSQL.
-*   **Panel de Administración:** Aplicación frontend completamente separada para visualizar órdenes, cambiar estados, descargar STLs y desencriptar datos de envío únicamente al momento de despachar o facturar.
+*   **Privacidad (PII):** Los datos sensibles (nombre, dirección de envío, RFC) se guardan encriptados a nivel de aplicación (FastAPI) en PostgreSQL. En local la llave vive en una variable de entorno.
+*   **Archivos:** STL, imágenes y constancias fiscales se guardan en disco. El backend es el único que los lee y los escribe.
+*   **Panel de Administración:** Aplicación frontend separada (`admin/`) para visualizar órdenes, cambiar estados, descargar STLs y desencriptar datos de envío únicamente al momento de despachar o facturar.
 
 ## 4. Estructura del Frontend Público (Vistas)
 *   **Inicio:** Hero section impactante, explicación del servicio y propuestas de valor (ideal para estudiantes y cosplayers).
@@ -37,19 +51,56 @@ Desarrollar una plataforma web profesional para ofrecer servicios de impresión 
 *   **Rastreo de Pedido:** Input simple para ingresar el `Order ID` y visualizar una línea de tiempo (timeline) con el estado: En cola -> Imprimiendo -> Terminado -> Enviado.
 
 ## 5. Backend (Endpoints Principales)
-*   `POST /api/quote/calculate`: Recibe el archivo STL, calcula el volumen, lo guarda en un bucket temporal de GCP y devuelve el precio estimado.
-*   `POST /api/checkout`: Procesa el pago de PayPal, encripta datos PII, guarda el PDF de la constancia en el bucket, mueve el STL a un bucket definitivo y genera el `Order ID`.
+*   `POST /api/quote/calculate`: Recibe el archivo STL, calcula el volumen, lo guarda en el almacén local y devuelve el precio estimado.
+*   `POST /api/checkout`: Procesa el pago de PayPal, encripta datos PII, guarda el PDF de la constancia en el almacén local, confirma el STL y genera el `Order ID`.
 *   `GET /api/orders/{order_id}`: Devuelve el estado actual de la orden (sin exponer PII).
 *   `GET /api/portfolio`: Sirve la lista de imágenes y categorías para poblar dinámicamente la vista de "Nuestro Trabajo".
 *   `PATCH /api/admin/orders/{order_id}`: Endpoint protegido para uso exclusivo del Panel de Administración para actualizar estados.
 
 ## 6. Notificaciones
-*   Notificaciones transaccionales por correo electrónico enviadas desde el backend (ej. usando `aiosmtplib` o Resend) al cliente cada vez que el administrador actualice el estado de su orden.
+*   Notificaciones transaccionales por correo electrónico enviadas desde el backend (Resend o SMTP) al cliente cada vez que el administrador actualice el estado de su orden.
 
-## 7. Flujo de Trabajo para Cursor AI
-1.  **Fase 1:** Inicializar proyecto Vite con React, configurar Tailwind CSS y shadcn/ui. Construir la UI base (Layout, Navbar, Footer y la galería estática del Portafolio).
-2.  **Fase 2:** Construir el componente del Cotizador Automático (Dropzone) y el Visor 3D utilizando `react-three-fiber`.
-3.  **Fase 3:** Configurar el entorno backend con FastAPI, conectar a PostgreSQL (local o GCP) y crear la lógica de cálculo volumétrico de STLs usando `trimesh`.
-4.  **Fase 4:** Conectar Frontend y Backend para completar el flujo del cotizador automático.
-5.  **Fase 5:** Integrar la pasarela de pago (PayPal), el sistema de encriptación de datos PII y la conexión con GCP Storage.
-6.  **Fase 6:** Construir la aplicación separada para el Panel de Administración.
+## 7. Orden de construcción
+
+El backlog es este orden, partido en tareas de una sesión. Cada etapa termina con algo que se puede ejecutar. La siguiente reemplaza una pieza y deja el resto en su lugar. No se abre una etapa hasta que la anterior tiene un resultado que se puede correr.
+
+1. **Skeleton.** Carpetas, instalación, una prueba que pasa en el frontend y otra en el backend. Sin comportamiento de producto.
+2. **Frontend con mock.** UI real del sitio público. Cada llamada al backend vive en una sola capa de servicio, y esa capa es falsa. El mock devuelve las mismas formas que devolverá la API.
+3. **Contrato.** `openapi.yaml` en la raíz del repositorio, sacado de esa capa de servicio. Solo los endpoints que el mock ya llama.
+4. **Backend en memoria.** API real que implementa el contrato y nada más. Los datos se pierden al reiniciar, a propósito. Sin base de datos.
+5. **Conexión.** El frontend usa el cliente real. El mock se queda en el repo para las pruebas. El almacén sigue en memoria.
+6. **Base de datos.** El almacén en memoria se reemplaza por PostgreSQL local y la carpeta de archivos. La UI y el contrato no cambian.
+
+```text
+spec
+  |
+  v
+skeleton
+  |
+  v
+frontend + mock
+  |
+  v
+openapi.yaml
+  |
+  v
+backend en memoria
+  |
+  v
+frontend -> cliente real
+  |
+  v
+base de datos
+```
+
+Layout de la primera versión:
+
+```text
+frontend/          sitio público
+backend/           API y sus pruebas
+_docs/             plan, proceso, roles
+AGENTS.md
+openapi.yaml       el contrato, desde la etapa 3
+```
+
+`admin/` no entra en estas seis etapas. GCP tampoco. La etapa 1 solo crea el esqueleto. El producto empieza en la etapa 2.
