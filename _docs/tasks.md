@@ -23,8 +23,8 @@ Goal: La pieza del cotizador automático se puede girar antes de seguir al pago.
 Description: Mostrar el STL cargado con `react-three-fiber`, con órbita, en la pantalla del cotizador automático. Si el archivo no se puede dibujar, la pantalla avisa y conserva el Quote ID y el precio que ya devolvió el servicio. Probar un STL dibujable y uno ilegible, sin servidor.
 
 ## 6. Cotizador manual
-Goal: Una idea sin STL queda registrada con un Quote ID y sin cobro.
-Description: El formulario pide la descripción del proyecto y permite subir imágenes de referencia, y se envía solo por la capa de servicio. El mock devuelve un Quote ID y la pantalla lo confirma. Probar el envío completo y el rechazo cuando falta la descripción, sin servidor y sin pago.
+Goal: Una idea queda registrada con un Quote ID y sin cobro, y puede incluir un STL.
+Description: El formulario pide la descripción del proyecto y permite subir imágenes de referencia y un STL opcional; se envía solo por la capa de servicio y ese STL no calcula precio. El mock devuelve un Quote ID y la pantalla lo confirma. Probar el envío con STL, el envío sin STL y el rechazo cuando falta la descripción, sin servidor y sin pago.
 
 ## 7. Checkout del anticipo
 Goal: La cotización automática termina en un Order ID con el 50% simulado.
