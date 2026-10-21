@@ -23,8 +23,8 @@ Goal: La pieza del cotizador automático se puede girar antes de seguir al pago.
 Description: Mostrar el STL cargado con `react-three-fiber`, con órbita, en la pantalla del cotizador automático. Si el archivo no se puede dibujar, la pantalla avisa y conserva el Quote ID y el precio que ya devolvió el servicio. Probar un STL dibujable y uno ilegible, sin servidor.
 
 ## 6. Cotizador manual
-Goal: Una idea queda registrada con un Quote ID y sin cobro, y puede incluir un STL.
-Description: El formulario pide la descripción del proyecto y permite subir imágenes de referencia y un STL opcional; se envía solo por la capa de servicio y ese STL no calcula precio. El mock devuelve un Quote ID y la pantalla lo confirma. Probar el envío con STL, el envío sin STL y el rechazo cuando falta la descripción, sin servidor y sin pago.
+Goal: Una idea queda registrada con un Quote ID, sin cobro, y se manda por WhatsApp o por correo.
+Description: El formulario pide la descripción, permite imágenes y un STL opcional, y exige elegir WhatsApp o correo; por correo el email es obligatorio para responderle, y por WhatsApp el servicio devuelve el enlace al negocio con el Quote ID y la descripción. El STL no calcula precio y este camino no cobra. Probar el correo con email, el rechazo si falta el email o la descripción, y el enlace de WhatsApp, sin servidor.
 
 ## 7. Checkout del anticipo
 Goal: La cotización automática termina en un Order ID con el 50% simulado.
@@ -52,7 +52,7 @@ Description: Implementar `POST /api/quote/calculate` con `trimesh`, guardar el a
 
 ## 13. Checkout y cotización manual en memoria
 Goal: El anticipo simulado y la solicitud manual dejan registros que el rastreo puede leer.
-Description: Implementar esas dos operaciones del contrato sobre el almacén en memoria, guardando correo, entrega y, cuando vengan, nombre, dirección, RFC y la referencia al PDF. El checkout crea el Order ID solo después de que una interfaz de pago confirme el 50%; en esta tarea esa interfaz es falsa y las pruebas no salen de la máquina. No llamar a PayPal ni escribir en disco o PostgreSQL.
+Description: Implementar esas dos operaciones del contrato sobre el almacén en memoria. En la cotización manual guardar el canal y, si es correo, el email de respuesta, y avisar por una interfaz de correo falsa; en el checkout guardar correo, entrega y, cuando vengan, nombre, dirección, RFC y la referencia al PDF. El Order ID se crea solo después de que una interfaz de pago falsa confirme el 50%, sin llamar a PayPal, sin enviar un correo real y sin escribir en disco o PostgreSQL.
 
 ## 14. PayPal sandbox del anticipo
 Goal: El servidor real confirma el 50% con PayPal antes de crear la orden.
@@ -76,7 +76,7 @@ Description: Crear `admin/` con React, Vite, TypeScript, Tailwind y shadcn/ui. D
 
 ## 19. Correo al cambiar el estado
 Goal: El cliente recibe un correo cada vez que el admin actualiza su orden.
-Description: Al completar el PATCH de estado, el backend envía un correo transaccional con Resend o SMTP al correo guardado en la orden. El mensaje incluye el Order ID y el estado nuevo: En cola, Imprimiendo, Terminado o Enviado. Las pruebas no envían un correo real.
+Description: Al completar el PATCH de estado, el backend envía un correo con Resend o SMTP al correo de la orden, con el Order ID y el estado nuevo. El mismo proveedor envía la cotización manual al negocio y usa el email del cliente como dirección de respuesta. Las pruebas no envían un correo real.
 
 ## 20. Paso a GCP
 Goal: Archivos, base y llave de cifrado salen de la máquina sin cambiar el producto.

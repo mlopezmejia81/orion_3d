@@ -42,7 +42,7 @@ Cuando cotizar, pagar y rastrear ya funcionen en local, GCP reemplaza estas tres
     *   Visor 3D interactivo para previsualización espacial de la pieza.
     *   Selector de calidad (Básica, Media, Premium) y acabado (Crudo, Pintado).
     *   Cálculo dinámico: El archivo se envía al backend, se procesa, y el frontend muestra el Quote ID y el precio estimado. El precio sale del volumen, la calidad y el acabado. Las tarifas son números provisionales en un solo módulo de configuración.
-*   **Cotizador Manual:** Formulario para proyectos personalizados, con descripción, imágenes de referencia y un STL opcional. Ese STL no calcula precio. Al enviarlo, la pantalla muestra el Quote ID. Este camino no cobra anticipo.
+*   **Cotizador Manual:** Formulario para proyectos personalizados, con descripción, imágenes de referencia y un STL opcional. Ese STL no calcula precio. El usuario elige WhatsApp o correo. Por correo deja su email, obligatorio, para que lo contacten de vuelta. Por WhatsApp se abre un mensaje al negocio con el Quote ID y la descripción; el número vive en configuración. Al enviarlo, la pantalla muestra el Quote ID. Este camino no cobra anticipo.
 *   **Checkout y Pagos:**
     *   Se abre desde el cotizador automático, con su Quote ID.
     *   Resumen de la orden y opciones elegidas.
@@ -54,7 +54,7 @@ Cuando cotizar, pagar y rastrear ya funcionen en local, GCP reemplaza estas tres
 
 ## 5. Backend (Endpoints Principales)
 *   `POST /api/quote/calculate`: Recibe el archivo STL, calcula el volumen, lo guarda en el almacén local y devuelve el Quote ID y el precio estimado.
-*   `POST /api/quotes/manual`: Recibe la descripción, las imágenes de referencia y un STL opcional, y devuelve el Quote ID. No calcula precio ni cobra.
+*   `POST /api/quotes/manual`: Recibe la descripción, las imágenes de referencia, un STL opcional y el canal, WhatsApp o correo. Si el canal es correo, el email es obligatorio y se guarda para la respuesta. Devuelve el Quote ID y, en WhatsApp, el enlace del mensaje. No calcula precio ni cobra.
 *   `POST /api/checkout`: Recibe el Quote ID del cotizador automático, verifica el anticipo del 50% con PayPal, encripta los datos personales, guarda el PDF de la constancia en el almacén local y genera el Order ID.
 *   `GET /api/orders/{order_id}`: Recibe también el correo. Si coinciden, devuelve el estado de la orden, sin otros datos personales.
 *   `GET /api/portfolio`: Sirve la lista de imágenes y categorías para poblar dinámicamente la vista de "Nuestro Trabajo".
@@ -62,6 +62,7 @@ Cuando cotizar, pagar y rastrear ya funcionen en local, GCP reemplaza estas tres
 
 ## 6. Notificaciones
 *   Notificaciones transaccionales por correo electrónico enviadas desde el backend (Resend o SMTP) al cliente cada vez que el administrador actualice el estado de su orden.
+*   En la cotización manual por correo, el backend envía la solicitud al negocio y conserva el email del cliente para responderle. En las etapas locales ese envío pasa por una interfaz falsa; Resend o SMTP lo reemplazan junto con el correo de cambio de estado.
 
 ## 7. Orden de construcción
 
