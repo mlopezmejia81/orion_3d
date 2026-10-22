@@ -1,0 +1,7 @@
+- Las tareas son issues de mlopezmejia81/orion_3d, una a la vez
+- El número de la issue es el número de la tarea
+- Lee la issue antes de empezar y antes de cerrarla
+- Haz commit con frecuencia
+- No abras la siguiente hasta que la anterior se pueda ejecutar
+- Las issues 18, 19 y 20 van después de las seis etapas y se parten antes de implementarlas
+- `_docs/tasks.md` es una copia. El backlog son las issues
