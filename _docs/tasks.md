@@ -1,6 +1,8 @@
 # Tareas
 
-El número es el orden. Las tareas 1 a 17 caben en una sesión. Las tareas 18, 19 y 20 van después de las seis etapas y se parten en sesiones más chicas antes de implementarlas. No se abre la siguiente hasta que la anterior se puede ejecutar.
+El backlog activo son los issues de https://github.com/mlopezmejia81/orion_3d. Este archivo ya no manda. El número de la tarea es el número del issue.
+
+Las tareas 1 a 17 caben en una sesión. Las tareas 18, 19 y 20 van después de las seis etapas y se parten en sesiones más chicas antes de implementarlas. No se abre la siguiente hasta que la anterior se puede ejecutar.
 
 ## 1. Esqueleto con una prueba que pasa
 Goal: Un proyecto vacío instala y pasa una prueba en el frontend y otra en el backend.
